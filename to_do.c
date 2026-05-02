@@ -12,6 +12,26 @@ typedef struct Nodo{
     struct Nodo *Siguiente;
 } Nodo;
 
+Nodo* crearListaVacia();
+Nodo * crearNodo(Tarea T);
+void insertarNodo(Nodo ** inicio, Nodo *nodo);
+void mostrarTareas(Nodo * Lista);
+void cargarTareas(Nodo ** pendientes);
+void liberarLista(Nodo *lista);
+
+int main(){
+    Nodo* pendientes;
+    pendientes = crearListaVacia();
+    cargarTareas(&pendientes);
+
+    printf("Tareas pendientes:\n");
+    mostrarTareas(pendientes);
+
+    liberarLista(pendientes);
+    pendientes = NULL;
+    return 0;
+}
+
 Nodo* crearListaVacia(){
     return NULL;
 }
@@ -30,40 +50,44 @@ void insertarNodo(Nodo ** inicio, Nodo *nodo){
 
 void mostrarTareas(Nodo * Lista){
     while(Lista != NULL){
-        printf("\nTarea numero: %d", Lista->T.TareaID);
+        printf("Tarea numero: %d\n", Lista->T.TareaID);
+        printf("Descripcion: ");
         puts(Lista->T.Descripcion);
         Lista = Lista->Siguiente;
     }
 }
 
-int main(){
-    Nodo* pendientes;
-    pendientes = crearListaVacia();
-
+void cargarTareas(Nodo ** pendientes){
     int id = 1000;
-    int continuar = 1;
-    while(!continuar){
+    int continuar = 0;
+    do{
         Tarea* nueva;
         nueva = (Tarea *) malloc(sizeof(Tarea));
-        printf("Ingrese la descripcion de la tarea:");
-        fflush(stdin);
+        printf("Ingrese la descripcion de la tarea: ");
         nueva->Descripcion = malloc(50 * sizeof(char));
-        gets(nueva->Descripcion);
+        fgets(nueva->Descripcion, 50, stdin);
 
-        int duracion;
-        printf("Ingrese la duracion de la tarea (10 - 100)");
+        printf("Ingrese la duracion de la tarea (10 - 100): ");
         scanf("%d", &nueva->Duracion);
-        
+        getchar();
+
         nueva->TareaID = id;
         id++;
 
         Nodo * nuevoNodo = crearNodo(*nueva);
-        insertarNodo(&pendientes, nuevoNodo);
+        insertarNodo(pendientes, nuevoNodo);
         printf("Agregar otra tarea?\n0. Si\n1. No\n");
         scanf("%d", &continuar);
-    }
+        getchar();
+    }while(!continuar);
+}
 
-    printf("Tareas pendientes:\n");
-    mostrarTareas(pendientes);
-    return 0;
+void liberarLista(Nodo *lista){
+    Nodo *aux;
+    while(lista != NULL){
+        aux = lista;
+        lista = lista->Siguiente;
+        free(aux->T.Descripcion);
+        free(aux);
+    }
 }
